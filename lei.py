@@ -19,7 +19,8 @@ def getpack(package,installname = None):
 
 fredapi = getpack("fredapi")
 from fredapi import Fred
-fred = Fred(api_key=open("./apikey").readlines()[0].strip())
+fred = Fred(api_key=open("./apikey.txt").readlines()[0].strip())
+yf = getpack("yfinance")
 
 
 class Indicator:
@@ -47,6 +48,10 @@ class Indicator:
 class LeadingEconIndic:
     
     def __init__(self):
+
+        SP_data = yf.Ticker("^GSPC").history(period="max").iloc[:,3]
+        self.sp500 = Indicator("SP500", SP_data, "Daily", "Points", "SP500 Index", "Yahoo Finance.")
+
         self.leadind_index = Indicator("Leading Index for the United States", fred.get_series('USSLIND'), "The leading "
             "index, includes variables that lead the economy: state-level housing permits (1 to 4 units), state initial "
             "unemployment insurance claims, delivery times from the Institute for Supply Management (ISM) manufacturing "
@@ -54,71 +59,33 @@ class LeadingEconIndic:
             "Monthly", "Percent", "Federal Reserve Bank of Philadelphia, retrieved from FRED;"
                                   " https://fred.stlouisfed.org/series/USSLIND.")
 
-        sent = fred.get_series('UMCSENT')
-        self.consumer_sentiment = Indicator("Consumer Sentiment", sent[sent.index >= "1978-01-01"], "University of Michigan: "
-            "Consumer Sentiment Index", "Monthly", "Index 1966:Q1=100", "University of Michigan, retrieved from FRED;"
-                                                                        " https://fred.stlouisfed.org/series/UMCSENT.")
-
         self.t10yr_fedfunds = Indicator("10-Year Treasury Constant Maturity Minus Federal Funds Rate",
             fred.get_series('T10YFF'), "Series is calculated as the spread between 10-Year Treasury Constant Maturity "
             "(BC_10YEAR) and Effective Federal Funds Rate.", "Daily", "Percent", "Federal Reserve Bank of St. Louis; "
             "https://fred.stlouisfed.org/series/T10YFF.")
 
-        self.m2 = Indicator("M2 Money Stock", fred.get_series('M2'), "M2 includes a broader set of financial assets held "
-            "principally by households. M2 consists of M1 plus: (1) savings deposits (which include money market deposit "
-            "accounts, or MMDAs); (2) small-denomination time deposits (time deposits in amounts of less than $100,000); "
-            "and (3) balances in retail money market mutual funds (MMMFs). Seasonally adjusted M2 is computed by summing "
-            "savings deposits, small-denomination time deposits, and retail MMMFs, each seasonally adjusted separately, "
-            "and adding this result to seasonally adjusted M1.", "Weekly", "Billions of Dollars", "Board of Governors of the Federal Reserve "
-            "System (US), retrieved from FRED; https://fred.stlouisfed.org/series/M2.")
-
-        self.building_perm = Indicator("New Private Housing Units Authorized by Building Permits", fred.get_series('PERMIT'),
-            "Thousands of Units, Seasonally Adjusted Annual Rate", "Monthly", "Thousands of Units", "U.S. Census Bureau, retrieved from FRED;"
-            " https://fred.stlouisfed.org/series/PERMIT.")
-
-        self.non_def_cap_goods_ord = Indicator("Value of Manufacturers' New Orders for Capital Goods: Nondefense Capital "
-            "Goods Industries", fred.get_series('ANDENO'), "This series is a topical regrouping of the separate industry "
-            "categories. Nondefense capital goods industries include: small arms and ordnance; farm machinery and equipment; "
-            "construction machinery; mining, oil, and gas field machinery; industrial machinery.", "Monthly",
-            "Million of Dollars", "U.S. Census Bureau, retrieved from FRED; https://fred.stlouisfed.org/series/ANDENO.")
-
-        self.non_def_cap_goods_ship = Indicator("Value of Manufacturers' Shipments for Capital Goods: Nondefense Capital Goods Industries",
-            fred.get_series('ANDEVS'), "This series is a topical regrouping of the separate industry categories. Nondefense "
-            "capital goods industries include: small arms and ordnance; farm machinery and equipment; construction machinery; "
-            "mining, oil, and gas field machinery; industrial machinery; vending, laundry, and other machinery; photographic "
-            "equipment; metalworking machinery; turbines and generators; other power transmission equipment; pumps and "
-            "compressors; material handling equipment; all other machinery; electronic computers; computer storage devices; "
-            "other computer peripheral equipment; communications equipment; search and navigation equipment; electromedical, "
-            "measuring, and control instruments; electrical equipment; other electrical equipment, appliances, and components; "
-            "heavy duty trucks; aircraft; railroad rolling stock; ships and boats; office and institutional furniture; and medical "
-            "equipment and supplies.", "Monthly", "Million of Dollars", "U.S. Census Bureau, retrieved from FRED; "
-            "https://fred.stlouisfed.org/series/ANDEVS.")
-
-        self.non_def_cap_goods_inv = Indicator(" Value of Manufacturers' Total Inventories for Capital Goods: Nondefense "
-            "Capital Goods Industries", fred.get_series('ANDETI'), "This series is a topical regrouping of the separate "
-            "industry categories. Nondefense capital goods industries include: small arms and ordnance; farm machinery and "
-            "equipment; construction machinery; mining, oil, and gas field machinery; industrial machinery; vending, laundry, "
-            "and other machinery; photographic equipment; metalworking machinery; turbines and generators; other power transmission equipment; "
-            "pumps and compressors; material handling equipment; all other machinery; electronic computers; computer storage "
-            "devices; other computer peripheral equipment; communications equipment; search and navigation equipment; "
-            "electromedical, measuring, and control instruments; electrical equipment; other electrical equipment, appliances, "
-            "and components; heavy duty trucks; aircraft; railroad rolling stock; ships and boats; office and institutional "
-            "furniture; and medical equipment and supplies.", "monthly", "Million of Dollars", "U.S. Census Bureau, retrieved from FRED;"
-            " https://fred.stlouisfed.org/series/ANDETI.")
+        sent = fred.get_series('UMCSENT')
+        self.consumer_sentiment = Indicator("Consumer Sentiment", sent[sent.index >= "1978-01-01"], "University of Michigan: "
+            "Consumer Sentiment Index", "Monthly", "Index 1966:Q1=100", "University of Michigan, retrieved from FRED;"
+                                                                        " https://fred.stlouisfed.org/series/UMCSENT.")
 
         self.manu_goods_ord = Indicator("Value of Manufacturers' New Orders for All Manufacturing Industries", fred.get_series('AMTMNO'),
             "Data on New Orders for the Semiconductor Industry are not available.", "Monthly", "Million of Dollars", "U.S. Census Bureau, retrieved from FRED;"
             " https://fred.stlouisfed.org/series/AMTMNO.")
+
+        self.manu_goods_ship = Indicator("Value of Manufacturers' Shipments for All Manufacturing Industries", fred.get_series('AMTMVS'),
+            "Estimates of Shipments for the semiconductor industry are no longer shown separately, but are included in Computers "
+            "and Electronic Products industry and in all other applicable aggregate totals.", "Monthly", "Million of Dollars", "U.S. Census Bureau, retrieved from FRED"
+            "; https://fred.stlouisfed.org/series/AMTMVS.")
 
         self.manu_goods_inv = Indicator("Value of Manufacturers' Total Inventories for All Manufacturing Industries",
             fred.get_series('AMTMTI'), "Estimates of Shipments for the semiconductor industry are no longer shown separately, "
             "but are included in Computers and Electronic Products industry and in all other applicable aggregate totals.",
             "Monthly", "Million of Dollars", "U.S. Census Bureau, retrieved from FRED; https://fred.stlouisfed.org/series/AMTMT.")
 
-        self.manu_goods_ship = Indicator("Value of Manufacturers' Shipments for All Manufacturing Industries", fred.get_series('AMTMVS'),
-            "Estimates of Shipments for the semiconductor industry are no longer shown separately, but are included in Computers "
-            "and Electronic Products industry and in all other applicable aggregate totals.", "Monthly", "Million of Dollars", "U.S. Census Bureau, retrieved from FRED"
-            "; https://fred.stlouisfed.org/series/AMTMVS.")
+        self.building_perm = Indicator("New Private Housing Units Authorized by Building Permits", fred.get_series('PERMIT'),
+            "Thousands of Units, Seasonally Adjusted Annual Rate", "Monthly", "Thousands of Units", "U.S. Census Bureau, retrieved from FRED;"
+            " https://fred.stlouisfed.org/series/PERMIT.")
 
         self.init_unempl_claim = Indicator("Initial Unemployment Claims", fred.get_series('ICSA'), "Unemployment insurance "
             "weekly claims report ending saturday", "Weekly", "Number", "U.S. ETA, retrieved from FRED; https://fred.stlouisfed.org/series/ICSA.")
@@ -149,6 +116,43 @@ class LeadingEconIndic:
             "(e.g., penal and mental facilities, homes for the aged), and who are not on active duty in the Armed Forces.",
             "Monthly", "Percent", "U.S. BLS, Unemployment Rate from FRED; https://fred.stlouisfed.org/series/UNRATE.")
 
+        self.m2 = Indicator("M2 Money Stock", fred.get_series('M2'), "M2 includes a broader set of financial assets held "
+            "principally by households. M2 consists of M1 plus: (1) savings deposits (which include money market deposit "
+            "accounts, or MMDAs); (2) small-denomination time deposits (time deposits in amounts of less than $100,000); "
+            "and (3) balances in retail money market mutual funds (MMMFs). Seasonally adjusted M2 is computed by summing "
+            "savings deposits, small-denomination time deposits, and retail MMMFs, each seasonally adjusted separately, "
+            "and adding this result to seasonally adjusted M1.", "Weekly", "Billions of Dollars", "Board of Governors of the Federal Reserve "
+            "System (US), retrieved from FRED; https://fred.stlouisfed.org/series/M2.")
+
+        self.non_def_cap_goods_ord = Indicator("Value of Manufacturers' New Orders for Capital Goods: Nondefense Capital "
+            "Goods Industries", fred.get_series('ANDENO'), "This series is a topical regrouping of the separate industry "
+            "categories. Nondefense capital goods industries include: small arms and ordnance; farm machinery and equipment; "
+            "construction machinery; mining, oil, and gas field machinery; industrial machinery.", "Monthly",
+            "Million of Dollars", "U.S. Census Bureau, retrieved from FRED; https://fred.stlouisfed.org/series/ANDENO.")
+
+        self.non_def_cap_goods_ship = Indicator("Value of Manufacturers' Shipments for Capital Goods: Nondefense Capital Goods Industries",
+            fred.get_series('ANDEVS'), "This series is a topical regrouping of the separate industry categories. Nondefense "
+            "capital goods industries include: small arms and ordnance; farm machinery and equipment; construction machinery; "
+            "mining, oil, and gas field machinery; industrial machinery; vending, laundry, and other machinery; photographic "
+            "equipment; metalworking machinery; turbines and generators; other power transmission equipment; pumps and "
+            "compressors; material handling equipment; all other machinery; electronic computers; computer storage devices; "
+            "other computer peripheral equipment; communications equipment; search and navigation equipment; electromedical, "
+            "measuring, and control instruments; electrical equipment; other electrical equipment, appliances, and components; "
+            "heavy duty trucks; aircraft; railroad rolling stock; ships and boats; office and institutional furniture; and medical "
+            "equipment and supplies.", "Monthly", "Million of Dollars", "U.S. Census Bureau, retrieved from FRED; "
+            "https://fred.stlouisfed.org/series/ANDEVS.")
+
+        self.non_def_cap_goods_inv = Indicator(" Value of Manufacturers' Total Inventories for Capital Goods: Nondefense "
+            "Capital Goods Industries", fred.get_series('ANDETI'), "This series is a topical regrouping of the separate "
+            "industry categories. Nondefense capital goods industries include: small arms and ordnance; farm machinery and "
+            "equipment; construction machinery; mining, oil, and gas field machinery; industrial machinery; vending, laundry, "
+            "and other machinery; photographic equipment; metalworking machinery; turbines and generators; other power transmission equipment; "
+            "pumps and compressors; material handling equipment; all other machinery; electronic computers; computer storage "
+            "devices; other computer peripheral equipment; communications equipment; search and navigation equipment; "
+            "electromedical, measuring, and control instruments; electrical equipment; other electrical equipment, appliances, "
+            "and components; heavy duty trucks; aircraft; railroad rolling stock; ships and boats; office and institutional "
+            "furniture; and medical equipment and supplies.", "monthly", "Million of Dollars", "U.S. Census Bureau, retrieved from FRED;"
+            " https://fred.stlouisfed.org/series/ANDETI.")
 
         self.rec_dates = Indicator("NBER based Recession Indicators for the United States from the Period following the "
             "Peak through the Trough", fred.get_series('USREC'), "This time series is an interpretation of US Business "
@@ -182,9 +186,6 @@ class LeadingEconIndic:
             "day of the month preceding the trough. Daily data is a disaggregation of monthly data. Here is an example of "
             "this time series represented using the peak method.", "Monthly", "+1 or 0", "Federal Reserve Bank of St. Louis, NBER "
             "based Recession Indicators; https://fred.stlouisfed.org/series/USREC.")
-
-        #ToDo proper data for SP500
-        #self.sp500 = Indicator("", fred.get_series(''), "", "", "")
 
     def __repr__(self):
         return "U.S. leading economic indicators: "+', '.join("%s: %s" % i for i in vars(self).items())
