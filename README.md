@@ -4,7 +4,7 @@
 
 - lei.py comiles a series of leading economic indicators in the U.S. using a custom class and subclass. The indicators have been lifted from the [Conference Board](https://en.wikipedia.org/wiki/Conference_Board_Leading_Economic_Index). Sources for them are listed below.
 
-- Visualistions.ipynb visualizes the data, the executed notebook can be found as index.html
+- Visualistions.ipynb visualizes the data, the executed notebook can be found here https://hfk97.github.io/LeadingEconomicIndicatorsUS.github.io/
 
 
 ### Sources
